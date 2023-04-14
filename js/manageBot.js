@@ -102,7 +102,7 @@ botProfiles.forEach((botProfile) => {
 // Ajoute un écouteur d'événements "keypress" à l'élément de saisie de message de l'utilisateur
 inputMessage.addEventListener("keypress", (event) => {
   // Vérifie si la touche "Entrée" est enfoncée (code de touche 13)
-  if (event.key === 13) {
+  if (event.key === 'Enter') {
     // Empêche la soumission du formulaire par défaut
     event.preventDefault();
 
