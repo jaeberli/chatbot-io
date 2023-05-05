@@ -3,17 +3,41 @@ const botProfiles = [
   {
     name: "Bigard",
     description: "C'est Jean-Marie Bigard ma cou***asse",
-    avatar: "https://pbs.twimg.com/profile_images/1251079718230769665/UwS8b60k_400x400.jpg"
+    avatar: "https://pbs.twimg.com/profile_images/1251079718230769665/UwS8b60k_400x400.jpg",
+    blague: "Un peu la flemme là ma couille.",
+    covid: "Les décideurs, ça te va si je dis les décideurs ?! Je n’en ai rien à foutre qu'il y en a 2 sur 100 millions, mais c'est eux qui décident. Quand un homme politique vient te dire que le conseil scientifique a dit que.",
+    rarara: `<a href="https://www.youtube.com/watch?v=qBDNNWAbYkg">Un classique</a>`,
+    cyril: "Vraiment une bonne persoone.",
+    "api-bigard": 
   },
   {
     name: "PNJ",
     description: "Je trouve Bigard offensant, en plus d'avoir le meme prenom qu'un facho.",
-    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX77Zhm9zgh4fxRFWzgc_-A0BurgLG4HbT1A&usqp=CAU"
+    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX77Zhm9zgh4fxRFWzgc_-A0BurgLG4HbT1A&usqp=CAU",
+    twitter: "Vraiment un safe place comme endroit. Toute ma raison d'exister.",
+    harry: "J. K. Rowling, sale transphobe va !!!",
+    susceptible: "Non je suis juste intolérant envers l'intolérance !!!!!!!!!!!!!!!!!!!!",
+    cyril: "Le meilleur intervenant, de très loin."
   },
   {
     name: "Le mousatchu",
     description: "Tu me connais bien :)",
-    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7bSJBWBMwNSGttlwJipdjoREYWNkGsZAv7w&usqp=CAU"
+    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7bSJBWBMwNSGttlwJipdjoREYWNkGsZAv7w&usqp=CAU",
+    44: "Aaaah juste avant ma chute :(",
+    voiture: "Je vois que beaucoup aime la volkswagen ! C'était ma voiture favorite aussi.",
+    erika: `Auf der Heide blüht ein kleines Blümelein<br>
+      Und das heißt<br>
+      Erika<br>
+      Heiß von hunderttausend kleinen Bienelein<br>
+      Wird umschwärmt<br>
+      Erika<br>
+      Denn ihr Herz ist voller Süßigkeit<br>
+      Zarter Duft entströmt dem Blütenkleid<br>
+      Auf der Heide blüht ein kleines Blümelein<br>
+      Und das heißt<br>
+      Erika<br>
+      Aaaah le doux bruit des bottes.`,
+    cyril: "Je vous souhaite que du bon pour la suite :)."
   }
 ];
 
@@ -33,45 +57,93 @@ const today = new Date();
 
 /**********************Permet d'afficher le message entré par le user**********************/
 function showUserMessage() {
-  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-
-  const insertBefore = document.getElementById("before-that");
-
   // Récupère le message de l'utilisateur
   const userMessage = inputMessage.value;
 
-  // Création de la 'card' pour afficher le message de l'utilisateur
-  const msgLi = document.createElement("li");
-  msgLi.classList.add("d-flex", "justify-content-between", "mb-4");
+  if(userMessage !== "") {
 
-  msgLi.innerHTML = `
-    <div class="card w-100">
-      <div class="card-header d-flex justify-content-between p-3">
-          <p class="fw-bold mb-0">Moi</p>
-          <p class="text-muted small mb-0"><i class="far fa-clock"></i>${time}</p>
-      </div>
-      <div class="card-body">
-          <p class="mb-0">
-            ${userMessage}
-          </p>
-      </div>
-    </div>
-    <img src="https://png.pngtree.com/png-vector/20191110/ourlarge/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg" alt="avatar"
-        class="rounded-circle d-flex align-self-start ms-3 shadow-1-strong" width="60">
-  `
-  chatBox.insertBefore(msgLi, insertBefore);
+    showMessage("humain", userMessage);
 
-  // Réinitialise le champ de saisie de message de l'utilisateur
-  inputMessage.value = "";
+    // Réinitialise le champ de saisie de message de l'utilisateur
+    inputMessage.value = "";
+  
+    if (userMessage === "help") {
+      const msg = "Je devrais essayer un de ces mots : blague, covid, rarara, 44, voiture, twitter, harry, susceptible<br> Et surtout il faut tester : cyril.";
+      showMessage("humain", msg);
+    }
+    else if(userMessage === "api") {
+      const msg = "Il faut ajouter le nom du bot : api-bigard, api-pnj, api-mousatchu";
+      showMessage("humain", msg);
+    }
+    else {
+      botResponse(userMessage);
+    }
+  }
+
+
 }
 /******************************************************************************************/
 
 
 /*****************************************************************************/
-function botResponse() {
-
+function botResponse(userMessage) {
+  for (const botProfile of botProfiles) {
+    for (const key in botProfile) {
+      if (userMessage.includes(key)) {
+          showMessage("bot", botProfile[key], botProfile);
+      }
+    }
+  }
 }
 /*****************************************************************************/
+
+function showMessage(typeUser, message, botProfile = null) {
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+  var cardContent;
+  const msgLi = document.createElement("li");
+  msgLi.classList.add("d-flex", "mb-4");
+
+  if (typeUser === "humain") {
+    msgLi.classList.add("justify-content-between");
+    cardContent = `
+      <div class="card w-100">
+        <div class="card-header d-flex justify-content-between p-3">
+            <p class="fw-bold mb-0">Moi</p>
+            <p class="text-muted small mb-0"><i class="far fa-clock"></i>${time}</p>
+        </div>
+        <div class="card-body">
+            <p class="mb-0">
+              ${message}
+            </p>
+        </div>
+      </div>
+      <img src="https://png.pngtree.com/png-vector/20191110/ourlarge/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg" alt="avatar"
+          class="rounded-circle d-flex align-self-start ms-3 shadow-1-strong" width="60">
+    `
+  } else {
+    cardContent = `
+      <img src="${botProfile.avatar}" alt="avatar"
+      class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between p-3">
+            <p class="fw-bold mb-0">${botProfile.name}</p>
+            <p class="text-muted small mb-0"><i class="far fa-clock"></i>${time}</p>
+        </div>
+        <div class="card-body">
+            <p class="mb-0">
+              ${message}
+            </p>
+        </div>
+      </div>
+    `
+  }
+
+  msgLi.innerHTML = cardContent;
+
+  chatBox.appendChild(msgLi);
+
+}
 
 /**************************Affiche une liste de bot**************************/
 botProfiles.forEach((botProfile) => {
@@ -110,3 +182,13 @@ inputMessage.addEventListener("keypress", (event) => {
     showUserMessage();
   }
 });
+
+
+// fetch("https://randomuser.me/api/")
+// .then(response => response.json())
+// .then(response => alert(JSON.stringify(response)))
+// .catch(error => alert("Erreur : " + error));
+
+// https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY
+
+// https://api.le-systeme-solaire.net/rest/
