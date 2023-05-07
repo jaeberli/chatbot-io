@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <section style="background-color: #eee; height: 100%;;">
+    <section class="d-inline-block h-100 w-100 p-3" style="background-color: #eee; height: 100%;">
         <div class="container py-5">
 
             <div class="row">
@@ -25,21 +25,22 @@
                     </div>
                 </div>
 
-                <div class="col-md-6 col-lg-7 col-xl-8">
+                <div style="max-height: 700px;" class="col-md-6 col-lg-7 col-xl-8 overflow-auto">
 
-                    <ul class="list-unstyled flex-column" id="chat-box" style="flex-grow: 1;">
-                    
-
+                    <ul class="list-unstyled flex-column" id="chat-box">
+                        <!-- Liste des messages -->
                     </ul>
 
-                    <div class="bg-white mb-3">
-                      <div class="form-outline">
-                          <label class="form-label" for="textAreaExample2">Message</label>
-                          <input class="form-control" id="user-message" rows="4"></input>
-                      </div>
-                    </div>
-                  <button type="button" onclick="showUserMessage()" class="btn btn-info btn-rounded float-end" id="send-message">Envoyer</button>
+                </div>
 
+                <div class="col-md-6 col-lg-5 col-xl-4 mb-4 mb-md-0"></div>
+
+                <div class="col-md-6 col-lg-7 col-xl-8 bg-white mb-3">
+                  <div class="form-outline">
+                      <label class="form-label" for="textAreaExample2">Message</label>
+                      <input class="form-control" id="user-message" rows="4"></input>
+                  </div>
+                  <button type="button" onclick="showUserMessage()" class="btn btn-info btn-rounded float-end" id="send-message">Envoyer</button>
                 </div>
 
             </div>

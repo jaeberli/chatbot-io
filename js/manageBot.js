@@ -8,7 +8,7 @@ const botProfiles = [
     covid: "Les décideurs, ça te va si je dis les décideurs ?! Je n’en ai rien à foutre qu'il y en a 2 sur 100 millions, mais c'est eux qui décident. Quand un homme politique vient te dire que le conseil scientifique a dit que.",
     rarara: `<a href="https://www.youtube.com/watch?v=qBDNNWAbYkg">Un classique</a>`,
     cyril: "Vraiment une bonne persoone.",
-    "api-bigard": 
+    "api-bigard": "https://randomuser.me/api/"
   },
   {
     name: "PNJ",
@@ -17,7 +17,8 @@ const botProfiles = [
     twitter: "Vraiment un safe place comme endroit. Toute ma raison d'exister.",
     harry: "J. K. Rowling, sale transphobe va !!!",
     susceptible: "Non je suis juste intolérant envers l'intolérance !!!!!!!!!!!!!!!!!!!!",
-    cyril: "Le meilleur intervenant, de très loin."
+    cyril: "Le meilleur intervenant, de très loin.",
+    "api-pnj": "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY"
   },
   {
     name: "Le mousatchu",
@@ -37,7 +38,8 @@ const botProfiles = [
       Und das heißt<br>
       Erika<br>
       Aaaah le doux bruit des bottes.`,
-    cyril: "Je vous souhaite que du bon pour la suite :)."
+    cyril: "Je vous souhaite que du bon pour la suite :).",
+    "api-mousatchu": "https://api.le-systeme-solaire.net/rest/"
   }
 ];
 
@@ -89,16 +91,16 @@ function showUserMessage() {
 function botResponse(userMessage) {
   for (const botProfile of botProfiles) {
     for (const key in botProfile) {
-      if (userMessage.includes(key)) {
-          showMessage("bot", botProfile[key], botProfile);
+      if (userMessage.toLowerCase().includes(key)) {
+          showMessage("bot", botProfile[key], botProfile, key.includes("api") ?? true);
       }
     }
   }
 }
 /*****************************************************************************/
 
-function showMessage(typeUser, message, botProfile = null) {
-  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+async function showMessage(typeUser, message, botProfile = null, isApi = false, definedTime = null) {
+  var time = definedTime ?? today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
   var cardContent;
   const msgLi = document.createElement("li");
@@ -120,8 +122,12 @@ function showMessage(typeUser, message, botProfile = null) {
       </div>
       <img src="https://png.pngtree.com/png-vector/20191110/ourlarge/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg" alt="avatar"
           class="rounded-circle d-flex align-self-start ms-3 shadow-1-strong" width="60">
-    `
-  } else {
+    `;
+  } else if (typeUser === "bot" && isApi) {
+    message = JSON.stringify(apiResponse);
+    var apiResponse = await fetch("https://randomuser.me/api/")
+      .then(response => response.clone().json())
+      .catch(error => alert("Erreur : " + error));
     cardContent = `
       <img src="${botProfile.avatar}" alt="avatar"
       class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
@@ -136,13 +142,48 @@ function showMessage(typeUser, message, botProfile = null) {
             </p>
         </div>
       </div>
-    `
+    `;
+  } 
+  else {
+    cardContent = `
+      <img src="${botProfile.avatar}" alt="avatar"
+      class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between p-3">
+            <p class="fw-bold mb-0">${botProfile.name}</p>
+            <p class="text-muted small mb-0"><i class="far fa-clock"></i>${time}</p>
+        </div>
+        <div class="card-body">
+            <p class="mb-0">
+              ${message}
+            </p>
+        </div>
+      </div>
+    `;
   }
 
   msgLi.innerHTML = cardContent;
 
   chatBox.appendChild(msgLi);
 
+  // Si definedTime alors cela signifie que nous utilisons les information dans le localStorage donc pas besoin de rajotuer le message
+  if (!definedTime) {
+    let toLocalStorage = { avatar: (botProfile && botProfile.avatar) ?? null, name: (botProfile && botProfile.name) ?? null, time: time, msg: message };
+    manageLocalStrorage(toLocalStorage);
+  }
+
+  const parent = chatBox.parentElement;
+  // Défile vers le bas pour afficher les nouveaux messages
+  parent.scrollTop = parent.scrollHeight - parent.offsetHeight;
+
+}
+
+function manageLocalStrorage(msg) {
+  let messages = JSON.parse(localStorage.getItem('messages')) || [];
+  messages.push(msg);
+
+  // mettre à jour le localStorage avec la nouvelle liste de messages
+  localStorage.setItem('messages', JSON.stringify(messages));
 }
 
 /**************************Affiche une liste de bot**************************/
@@ -172,7 +213,7 @@ botProfiles.forEach((botProfile) => {
 
 
 // Ajoute un écouteur d'événements "keypress" à l'élément de saisie de message de l'utilisateur
-inputMessage.addEventListener("keypress", (event) => {
+inputMessage.addEventListener("keypress", () => {
   // Vérifie si la touche "Entrée" est enfoncée (code de touche 13)
   if (event.key === 'Enter') {
     // Empêche la soumission du formulaire par défaut
@@ -183,12 +224,23 @@ inputMessage.addEventListener("keypress", (event) => {
   }
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+  // Récupération du contenu du localStorage
+  const storedMessages = JSON.parse(localStorage.getItem('messages'));
 
-// fetch("https://randomuser.me/api/")
-// .then(response => response.json())
-// .then(response => alert(JSON.stringify(response)))
-// .catch(error => alert("Erreur : " + error));
+  // Vérification que des messages ont été enregistrés dans le localStorage
+  if (storedMessages) {
+    // Boucle sur les messages pour les afficher dans le DOM
+    storedMessages.forEach(message => {
+      if (message.avatar && message.name) {
+        let botInf = { avatar: message.avatar, name: message.name };
 
-// https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY
+        showMessage("bot", message.msg, botInf, false, message.time);
+      } else {
+        showMessage("humain", message.msg, null, false, message.time);
+      }
+      console.log(message);
+    });
+  }
+});
 
-// https://api.le-systeme-solaire.net/rest/
